@@ -1,5 +1,7 @@
 # UnityMarkdeepViewer
 
+**WIP : This is a bit hacky and prototypy**
+
 Editor scripts allowing to display Markdown, markdeep and HMTL directly inside the Unity Editor
 
 It use the internal Unity Webview (used for example by the AssetStore or the Collab windows) through reflexion.
