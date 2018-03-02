@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Timers;
 using System.Reflection;
-using UnityEngine.UI;
 
 public class DocViewerWindow : EditorWindow, IHasCustomMenu
 {
@@ -35,8 +34,6 @@ public class DocViewerWindow : EditorWindow, IHasCustomMenu
 
     protected string pathToMarkdeep;
     protected string pathToStylesheet;
-
-    protected ViewerScriptObject scriptObj;
 
     object previousParent = null;
 
@@ -93,7 +90,10 @@ public class DocViewerWindow : EditorWindow, IHasCustomMenu
     private void OnEnable()
     {
         InitFieldMapping();
-
+#if SINGLE_FILE
+        //single file version copy it's own embeded file data into file in the Library folder it will link to.
+        CopyFiles();
+#else
         string[] markdeepGUID = AssetDatabase.FindAssets("markdeep.min");
         if (markdeepGUID.Length == 0)
         {
@@ -113,7 +113,38 @@ public class DocViewerWindow : EditorWindow, IHasCustomMenu
         {
             pathToStylesheet = AssetDatabase.GUIDToAssetPath(markdeepGUID[0]).Replace("Assets", Application.dataPath);
         }
+#endif
     }
+
+#if SINGLE_FILE
+    void CopyFiles()
+    {
+        string lightpath = Application.dataPath + "/../Library/docmd/light_style.css";
+        string darkpath = Application.dataPath + "/../Library/docmd/dark_style.css";
+
+        pathToMarkdeep = Application.dataPath + "/../Library/docmd/markdeep.min.jscript";
+        pathToStylesheet = Application.dataPath + "/../Library/docmd/"+
+                           (EditorGUIUtility.isProSkin ? "dark_style" : "light_style") + ".css";
+
+        if (!System.IO.Directory.Exists(Application.dataPath + "/../Library/docmd"))
+            System.IO.Directory.CreateDirectory(Application.dataPath + "/../Library/docmd");
+
+        if (!System.IO.File.Exists(pathToMarkdeep))
+        {
+            System.IO.File.WriteAllText(pathToMarkdeep, MARKDEEP_CONTENT);
+        }
+
+        if (!System.IO.File.Exists(lightpath))
+        {
+            System.IO.File.WriteAllText(lightpath, LIGHT_STYLE_CONTENT);
+        }
+
+        if (!System.IO.File.Exists(darkpath))
+        {
+            System.IO.File.WriteAllText(darkpath, DARK_STYLE_CONTENT);
+        }
+    }
+#endif
 
     bool OnLocationChanged(string url)
     {
