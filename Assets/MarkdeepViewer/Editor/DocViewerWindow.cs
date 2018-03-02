@@ -120,21 +120,22 @@ public class DocViewerWindow : EditorWindow, IHasCustomMenu
         //bool md = System.IO.Path.GetExtension(url).ToLower() == ".md";
         bool md = url.Contains(".md");
 
+        ExecuteJS("window.styleCheckWaitForProcess = false;");
+
         // All the javascript is unreadable here cause multiple instruction packed into single lines, but easier that way.
         //TODO : maybe make that nicer to read, would help debug
         if (md)
         {
-            ExecuteJS("var containScript = false; var scripts = document.getElementsByTagName(\"script\"); for (var i = 0; i < scripts.length; ++i) { if( scripts[i].src.includes(\"markdeep.min.js\") ){containScript = true;} }; if(!containScript){document.body.innerHTML = document.body.children[0].innerText; var v = document.createElement(\'script\'); v.src=\"" + pathToMarkdeep +
+            ExecuteJS("window.styleCheckWaitForProcess = true; window.alreadyProcessedMarkdeep = false; var containScript = false; var scripts = document.getElementsByTagName(\"script\"); for (var i = 0; i < scripts.length; ++i) { if( scripts[i].src.includes(\"markdeep.min.js\") ){containScript = true;} }; if(!containScript){document.body.innerHTML = document.body.children[0].innerText; var v = document.createElement(\'script\'); v.src=\"" + pathToMarkdeep +
                       "\"; document.body.appendChild(v);}");
-            
-            //ExecuteJS("document.body.innerHTML = document.body.children[0].innerText;");
-            //ExecuteJS("var v = document.createElement(\'script\'); v.src=\"" + pathToMarkdeep +
-            //          "\"; document.body.appendChild(v);");
         }
+
 
         //check if there is a stylesheet linked to the document, if there is none, this is either a pure markdown file, a "default style" markdeep, or "basic HTML" file.
         //it then assign the default style (choosen depending on the skin of the editor) to it.
-        ExecuteJS("var needStyle = true; var a = document.head.getElementsByTagName(\"link\"); for(var i = 0, len = a.length; i < len; i++) { if(a[i].rel == \"stylesheet\") needStyle = false; }; if(needStyle) { var lnk = document.createElement(\"link\"); lnk.rel = \"stylesheet\"; lnk.href = \""+pathToStylesheet+"?\"; document.head.appendChild(lnk); }\n");
+        ExecuteJS("function addStyle(){var needStyle = true; var a = document.head.getElementsByTagName(\"link\"); for(var i = 0, len = a.length; i < len; i++) { if(a[i].rel == \"stylesheet\") needStyle = false; }; if(needStyle) { var lnk = document.createElement(\"link\"); lnk.rel = \"stylesheet\"; lnk.href = \"" + pathToStylesheet + "?\"; document.head.appendChild(lnk); }}");
+
+        ExecuteJS("function checkMarkdeepProcessed() { if(window.styleCheckWaitForProcess && !window.alreadyProcessedMarkdeep) { setTimeout(checkMarkdeepProcessed, 50); return; } addStyle();}; checkMarkdeepProcessed();");
 
         return true;
     }
