@@ -1,5 +1,15 @@
 # UnityMarkdeepViewer
 
+# DEPRECATED 
+
+This was using the old Webview in the Unity editor which was removed in more recent version, so this won't work in more
+recent Unity version. Keeping this here as reference.
+
+For more recent version of the editor, see this repository https://github.com/UnityGuillaume/MarkdownRenderer that is using
+the new UIToolkit used by the Untiy Editor to parse and render markdown directly in the Unity Editor UI.
+
+## Readme
+
 **WIP : This is a bit hacky and prototypy**
 
 Editor scripts allowing to display Markdown, Markdeep and HMTL directly inside the Unity Editor
